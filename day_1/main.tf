@@ -53,7 +53,7 @@ resource "aws_subnet" "private" {
 
 resource "aws_eip" "nat_eip" {
   domain = "vpc"
-  }
+}
 
 resource "aws_nat_gateway" "NAT" {
   subnet_id     = aws_subnet.public.id
@@ -122,6 +122,12 @@ resource "aws_security_group" "private_sg" {
     protocol    = "tcp"
     cidr_blocks = [aws_subnet.public.cidr_block]
   }
+   ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [aws_subnet.public.cidr_block]
+  }
 
   egress {
     from_port   = 0
@@ -144,25 +150,25 @@ data "aws_ami" "latest_amazon_linux" {
     values = ["amzn2-ami-hvm-*-x86_64-gp2"]  # Amazon Linux 2
   }
 }
-resource "local_file" "private_key" {
-  content  = tls_private_key.example.private_key_pem
-  filename = "${path.module}/deployer-key.pem" #change mode to 400
+
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = tls_private_key.example.public_key_openssh
 }
 
 resource "aws_instance" "public_instance" {
- ami           = data.aws_ami.latest_amazon_linux.id
+  ami           = data.aws_ami.latest_amazon_linux.id
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public.id
   security_groups = [aws_security_group.public_sg.id]
+  key_name      = aws_key_pair.deployer.key_name
 
-  user_data = <<-EOF
-              #!/bin/bash
-              yum update -y
-              yum install -y httpd
-              systemctl start httpd
-              systemctl enable httpd
-              echo "Hello ya brother from another side " > /var/www/html/index.html
-              EOF
+ 
 
   tags = {
     Name = "public-instance"
@@ -170,11 +176,12 @@ resource "aws_instance" "public_instance" {
 }
 
 resource "aws_instance" "private_instance" {
-  ami           = data.aws_ami.latest_amazon_linux.id  # Replace with a valid AMI ID
+  ami           = data.aws_ami.latest_amazon_linux.id
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.private.id
   security_groups = [aws_security_group.private_sg.id]
-  user_data = <<-EOF
+  key_name      = aws_key_pair.deployer.key_name
+   user_data = <<-EOF
               #!/bin/bash
               yum update -y
               yum install -y httpd
@@ -187,12 +194,24 @@ resource "aws_instance" "private_instance" {
     Name = "private-instance"
   }
 }
+
+resource "local_file" "private_key" {
+  content  = tls_private_key.example.private_key_pem
+  filename = "${path.module}/deployer-key.pem"
+}
+
 output "public_ip" {
   description = "The public IP address of the instance"
-  value       = aws_instance.example.public_ip
+  value       = aws_instance.public_instance.public_ip
 }
 
 output "private_ip" {
   description = "The private IP address of the instance"
-  value       = aws_instance.example.private_ip
+  value       = aws_instance.private_instance.private_ip
+}
+
+output "private_key_pem" {
+  description = "The private key in PEM format"
+  value       = tls_private_key.example.private_key_pem
+  sensitive   = true
 }
