@@ -52,8 +52,8 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_eip" "nat_eip" {
-  vpc = true
-}
+  domain = "vpc"
+  }
 
 resource "aws_nat_gateway" "NAT" {
   subnet_id     = aws_subnet.public.id
@@ -144,6 +144,10 @@ data "aws_ami" "latest_amazon_linux" {
     values = ["amzn2-ami-hvm-*-x86_64-gp2"]  # Amazon Linux 2
   }
 }
+resource "local_file" "private_key" {
+  content  = tls_private_key.example.private_key_pem
+  filename = "${path.module}/deployer-key.pem"
+}
 
 resource "aws_instance" "public_instance" {
  ami           = data.aws_ami.latest_amazon_linux.id
@@ -157,7 +161,7 @@ resource "aws_instance" "public_instance" {
               yum install -y httpd
               systemctl start httpd
               systemctl enable httpd
-              echo "<html><body><h1>Hello from Terraform!</h1></body></html>" > /var/www/html/index.html
+              echo "Hello ya brother from another side " > /var/www/html/index.html
               EOF
 
   tags = {
@@ -170,8 +174,25 @@ resource "aws_instance" "private_instance" {
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.private.id
   security_groups = [aws_security_group.private_sg.id]
+  user_data = <<-EOF
+              #!/bin/bash
+              yum update -y
+              yum install -y httpd
+              systemctl start httpd
+              systemctl enable httpd
+              echo "<html><body><h1>Hello from Terraform!</h1></body></html>" > /var/www/html/index.html
+              EOF
 
   tags = {
     Name = "private-instance"
   }
+}
+output "public_ip" {
+  description = "The public IP address of the instance"
+  value       = aws_instance.example.public_ip
+}
+
+output "private_ip" {
+  description = "The private IP address of the instance"
+  value       = aws_instance.example.private_ip
 }
