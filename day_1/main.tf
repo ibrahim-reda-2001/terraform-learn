@@ -146,7 +146,7 @@ data "aws_ami" "latest_amazon_linux" {
 }
 resource "local_file" "private_key" {
   content  = tls_private_key.example.private_key_pem
-  filename = "${path.module}/deployer-key.pem"
+  filename = "${path.module}/deployer-key.pem" #change mode to 400
 }
 
 resource "aws_instance" "public_instance" {
