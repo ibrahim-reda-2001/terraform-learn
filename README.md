@@ -27,7 +27,7 @@ For detailed information, visit the [Day 1 README](Day1/README.md).
 
 ### Day 2
 
-![Daigram](/assetes/day2D.jpg)
+![Daigram]([/assetes/day2D.jpg](https://github.com/Amr-Awad/AutoScallerTerraform/blob/main/architecture.jfif))
 
 Advanced AWS infrastructure setup including:
 - Additional Subnets
