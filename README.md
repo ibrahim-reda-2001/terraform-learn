@@ -13,7 +13,7 @@ This project uses Terraform to create and manage AWS infrastructure. The infrast
 
 ### Day 1
 
-![Daigram](/assetes/day1D.png)
+![Daigram](https://github.com/ibrahim-reda-2001/photo/blob/master/WhatsApp%20Image%202025-02-02%20at%2011.45.57_50fea60a.jpg)
 
 Basic AWS infrastructure setup including:
 - VPC
