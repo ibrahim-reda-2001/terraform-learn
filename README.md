@@ -22,9 +22,6 @@ Basic AWS infrastructure setup including:
 - NAT Gateway
 - Security Groups
 - EC2 Instances
-
-For detailed information, visit the [Day 1 README](Day1/README.md).
-
 ### Day 2
 
 ![Daigram](https://github.com/Amr-Awad/AutoScallerTerraform/blob/main/architecture.jfif)
@@ -36,8 +33,18 @@ Advanced AWS infrastructure setup including:
 - Security Groups
 - Application Load Balancer
 - Auto-Scaling Group
+### Day  3
+![Daigram](https://github.com/ibrahim-reda-2001/photo/blob/master/Lab3%5B1%5D.pdf%20and%202%20more%20pages%20-%20Profile%201%20-%20Microsoft%E2%80%8B%20Edge%202_6_2025%204_32_05%20PM.png)
 
-For detailed information, visit the [Day 2 README](Day2/README.md).
+Reverse proxy using AWS
+- VPC
+- AZ
+- private subnets
+- public subnets
+- NAT Gatway
+- Internet Gatway
+- Internal Loadbalancer
+- Public LoadBalancer 
 
 ## Usage
 
